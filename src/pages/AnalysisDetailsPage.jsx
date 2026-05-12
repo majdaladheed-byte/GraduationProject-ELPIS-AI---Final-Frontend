@@ -1,31 +1,49 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer.jsx'
 import LoadingSpinner from '../components/common/LoadingSpinner.jsx'
 import ErrorMessage from '../components/common/ErrorMessage.jsx'
 import { formatDate } from '../utils/formatDate.js'
 import { ROUTES } from '../utils/constants.js'
+import { useParams } from 'react-router-dom'
+import {getAnalysisDetailsApi} from '../api/analysisApi.js'
 
 const BORDER = '#d1e3f8'
 const PRIMARY = '#2a7fd4'
 const TITLE_COLOR = '#1a1a2e'
 const CARD_SHADOW = '0 2px 12px rgba(26, 26, 46, 0.08)'
 
-const PLACEHOLDER_ANALYSIS = {
-  analysis_id: 102,
-  date: '2026-05-06T09:15:00.000Z',
-  filename: 'scan_left.png',
-  has_tumor: true,
-  tumor_type: 'malignant',
-  mask_path: 'https://via.placeholder.com/700x380.png?text=Mask+Preview',
-}
+
 
 export default function AnalysisDetailsPage() {
-  const [loading] = useState(false)
-  const [error] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [analysis, setAnalysis] = useState(null)
+  const {id} = useParams()
 
-  const analysis = PLACEHOLDER_ANALYSIS
+  useEffect(() => {
+   async function loadAnalysis() {
+     try {
+      const data = await getAnalysisDetailsApi(id)
+      setAnalysis(data)
+     }catch (err) {
+      console.error(err)
+      setError('Failed to load analysis')
+     }finally {
+      setLoading(false)
+     }
+   }
 
+   loadAnalysis()
+}, [id])
+
+  if (!analysis) {
+    return (
+      <PageContainer>
+        <h2>No analysis selected</h2>
+      </PageContainer>
+    )
+  }
   return (
     <PageContainer>
       <Link
@@ -79,7 +97,7 @@ export default function AnalysisDetailsPage() {
             <span style={{ fontSize: '13px', color: '#6b7280', display: 'block', marginBottom: '6px' }}>
               Filename
             </span>
-            <span style={{ fontSize: '15px', color: TITLE_COLOR }}>{analysis.filename}</span>
+            <span style={{ fontSize: '15px', color: TITLE_COLOR }}>{analysis.image}</span>
           </div>
 
           <div style={{ marginBottom: '14px' }}>

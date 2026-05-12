@@ -1,24 +1,41 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer.jsx'
 import ErrorMessage from '../components/common/ErrorMessage.jsx'
 import LoadingSpinner from '../components/common/LoadingSpinner.jsx'
 import { ROUTES } from '../utils/constants.js'
+import {loginApi} from '../api/authApi.js'
 
 const BORDER = '#d1e3f8'
 const PRIMARY = '#2a7fd4'
 const TITLE_COLOR = '#1a1a2e'
 
 export default function LoginPage() {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading] = useState(false)
   const [error] = useState('')
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    // Phase 3: connect login API
+  const handleSubmit = async (e) => {
+  e.preventDefault()
+
+  try {
+    const result = await loginApi({
+      email,
+      password,
+    })
+
+    console.log(result)
+
+    localStorage.setItem('token', result.access_token)
+
+    navigate('/predict')
+  } catch (err) {
+    console.error(err)
+    alert('Login failed')
   }
+}
 
   return (
     <PageContainer>

@@ -4,6 +4,7 @@ import PageContainer from '../components/layout/PageContainer.jsx'
 import ErrorMessage from '../components/common/ErrorMessage.jsx'
 import LoadingSpinner from '../components/common/LoadingSpinner.jsx'
 import { ROUTES } from '../utils/constants.js'
+import {registerApi} from '../api/authApi.js'
 
 const BORDER = '#d1e3f8'
 const PRIMARY = '#2a7fd4'
@@ -16,10 +17,23 @@ export default function RegisterPage() {
   const [loading] = useState(false)
   const [error] = useState('')
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    // Phase 3: connect register API
+  const handleSubmit = async (e) => {
+  e.preventDefault()
+
+  try {
+    const result = await registerApi({
+      username,
+      email,
+      password,
+    })
+
+    console.log(result)
+    alert('Registered successfully!')
+  } catch (err) {
+    console.error(err)
+    alert('Register failed')
   }
+}
 
   return (
     <PageContainer>

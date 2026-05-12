@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import PageContainer from '../components/layout/PageContainer.jsx'
 import LoadingSpinner from '../components/common/LoadingSpinner.jsx'
 import ErrorMessage from '../components/common/ErrorMessage.jsx'
+import {predictApi} from '../api/analysisApi.js'
 
 const BORDER = '#d1e3f8'
 const PRIMARY = '#2a7fd4'
@@ -55,9 +56,29 @@ export default function PredictPage() {
     inputRef.current?.click()
   }
 
-  const handleAnalyze = () => {
-    /* Phase 3: call prediction API */
+  const handleAnalyze = async () => {
+  if (!file) return
+
+  try {
+    setLoading(true)
+    setError('')
+
+    const response = await predictApi(file)
+
+    console.log(response)
+
+    setResult(response.analysis)
+  } catch (err) {
+    console.error(err)
+
+    setError(
+      err.response?.data?.detail ||
+      'Analysis failed'
+    )
+  } finally {
+    setLoading(false)
   }
+}
 
   const cardBase = {
     backgroundColor: '#ffffff',

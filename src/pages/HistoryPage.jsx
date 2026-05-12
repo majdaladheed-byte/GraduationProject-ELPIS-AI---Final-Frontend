@@ -1,43 +1,39 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer.jsx'
 import LoadingSpinner from '../components/common/LoadingSpinner.jsx'
 import ErrorMessage from '../components/common/ErrorMessage.jsx'
 import { formatDate } from '../utils/formatDate.js'
 import { ROUTES } from '../utils/constants.js'
+import { getHistoryApi } from '../api/analysisApi.js'
 
 const BORDER = '#d1e3f8'
 const PRIMARY = '#2a7fd4'
 const TITLE_COLOR = '#1a1a2e'
 const CARD_SHADOW = '0 2px 12px rgba(26, 26, 46, 0.08)'
 
-/** Temporary demo data — replace with API response in Phase 3 */
-const PLACEHOLDER_ANALYSES = [
-  {
-    analysis_id: 101,
-    date: '2026-05-08T14:30:00.000Z',
-    filename: 'ultrasound_may08.jpg',
-    has_tumor: false,
-  },
-  {
-    analysis_id: 102,
-    date: '2026-05-06T09:15:00.000Z',
-    filename: 'scan_left.png',
-    has_tumor: true,
-  },
-  {
-    analysis_id: 103,
-    date: '2026-04-22T16:45:00.000Z',
-    filename: 'follow_up.jpeg',
-    has_tumor: false,
-  },
-]
+
 
 export default function HistoryPage() {
-  const [loading] = useState(false)
-  const [error] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [items, setItems] = useState([])
 
-  const items = PLACEHOLDER_ANALYSES
+  useEffect(()=> {
+    async function loadHistory() {
+      try {
+        const data = await getHistoryApi()
+        setItems(data)
+      }catch(err) {
+        console.error(err)
+        setError('Failed to load history')
+      }finally {
+        setLoading(false)
+      }
+    }
+
+    loadHistory()
+  }, [])
 
   const cardStyle = {
     backgroundColor: '#ffffff',
